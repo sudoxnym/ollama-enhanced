@@ -139,7 +139,10 @@ class WebSearchClient:
             return response.status_code, response
 
         try:
-            status, response = await self.hass.async_add_executor_job(_perform_request)
+            if self.hass is not None:
+                status, response = await self.hass.async_add_executor_job(_perform_request)
+            else:
+                status, response = await asyncio.to_thread(_perform_request)
         except RuntimeError as err:
             _LOGGER.error("SearXNG request failed: %s", err)
             return []
