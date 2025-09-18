@@ -1,57 +1,99 @@
-# ollama enhanced for home assistant
+# Ollama Enhanced for Home Assistant
 
-![hacs custom badge](https://img.shields.io/badge/hacs-custom-orange.svg)
-![mit license badge](https://img.shields.io/badge/license-mit-yellow.svg)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-an enhanced fork of the home assistant ollama integration that mirrors openwebui's searxng behaviour and adds flexible web search support.
+An enhanced version of the official Home Assistant Ollama integration with web search capabilities, similar to OpenWebUI's search functionality. This replaces the official integration while maintaining full compatibility and adding powerful web search features.
 
-## features
+## Features
 
-- multiple search providers: searxng, duckduckgo, google custom search, bing, or any json api
-- smart search triggers that react to phrases like "search for", "look up", "latest news", and year references
-- configurable result counts and provider urls per conversation agent
-- seamless injection of search snippets into the llm prompt so conversations stay current
-- graceful fallbacks when a provider fails so the chat still replies
+✅ **Multiple Search Providers**
+- SearXNG (self-hosted search)
+- DuckDuckGo (official API)
+- Google Custom Search (API key required)
+- Bing Search (API key required)
+- Custom providers (any JSON-based search API)
 
-## installation
+✅ **Smart Search Triggering**
+Automatically detects when to perform web searches based on keywords:
+- "search for", "look up", "find information about"
+- "what is", "tell me about", "latest news"
+- "current events", "recent", "today", "this week"
+- Year references (2024, 2025)
 
-### option 1: hacs (recommended)
+✅ **Configurable Settings**
+- Enable/disable web search per conversation agent
+- Choose search provider and URL
+- Set number of search results (1-20)
+- Works alongside the official Ollama integration
 
-1. open hacs in home assistant
-2. go to "integrations"
-3. click the three dots menu and choose "custom repositories"
-4. add `https://github.com/sudoxnym/ollama-enhanced`
-5. select "integration" as the category
-6. click "add"
-7. search for "ollama enhanced" and install
-8. restart home assistant
+✅ **Seamless Integration**
+- Search results are automatically included in conversation context
+- LLM receives both user query and relevant web search results
+- Graceful error handling - conversations continue even if search fails
 
-### option 2: manual install
+## Installation
 
-1. download the latest release from https://github.com/sudoxnym/ollama-enhanced/releases
-2. copy `custom_components/ollama` into your home assistant `custom_components` directory
-3. restart home assistant
+### Option 1: HACS (Recommended)
 
-## configuration
+1. Open HACS in Home Assistant
+2. Go to "Integrations"
+3. Click the three dots menu and select "Custom repositories"
+4. Add this repository URL: `https://github.com/sudoxnym/ollama-enhanced`
+5. Select "Integration" as the category
+6. Click "Add"
+7. Search for "Ollama Enhanced" and install it
+8. Restart Home Assistant
 
-### prerequisites
+### Option 2: Manual Installation
 
-- a running ollama server
-- optionally a self-hosted searxng instance (recommended for privacy)
-- alternatively an api key for another provider (duckduckgo, google, bing, custom)
+1. Download the latest release from [GitHub releases](https://github.com/sudoxnym/ollama-enhanced/releases)
+2. Extract the `custom_components/ollama` folder to your Home Assistant `custom_components` directory
+3. Restart Home Assistant
 
-### setup steps
+## Configuration
 
-1. install the integration: settings → devices & services → add integration → "ollama enhanced"
-2. configure the ollama server url (for example `http://localhost:11434`) and test the connection
-3. create a conversation agent, pick your model, and adjust history or prompt settings
-4. enable web search, choose the provider, enter its base url, and set how many results to include (1-20)
+### Prerequisites
 
-## searxng setup tips
+1. **Ollama Server**: You need a running Ollama server
+2. **Search Provider**: Choose one of the supported search providers:
+   - **SearXNG**: Self-hosted search engine (recommended for privacy)
+   - **DuckDuckGo**: Uses the free official API (limited results)
+   - **Custom**: Any JSON-based search API
 
-searxng must allow json output or the integration will receive 403 responses.
+### Setup Steps
 
-1. run searxng (docker example):
+1. **Install the Integration**
+   - Go to Settings → Devices & Services
+   - Click "Add Integration"
+   - Search for "Ollama Enhanced"
+   - Click to add it
+
+2. **Configure Ollama Connection**
+   - Enter your Ollama server URL (e.g., `http://localhost:11434`)
+   - Test the connection
+
+3. **Add Conversation Agent**
+   - Click "Add conversation agent"
+   - Choose your model
+   - Configure conversation settings
+
+4. **Enable Web Search**
+   - Toggle "Enable web search" to ON
+   - Select your search provider
+   - Enter the search URL:
+     - SearXNG: `http://your-searxng-instance:8080`
+     - DuckDuckGo: Leave default (uses official API)
+     - Custom: Your custom search API endpoint
+   - Set the number of search results (default: 5)
+
+## Search Providers Setup
+
+### SearXNG (Recommended)
+
+SearXNG is a privacy-respecting metasearch engine that you can self-host:
+
+1. **Docker Setup**:
    ```bash
    docker run -d \
      --name searxng \
@@ -59,44 +101,100 @@ searxng must allow json output or the integration will receive 403 responses.
      -v ${PWD}/searxng:/etc/searxng \
      searxng/searxng:latest
    ```
-2. edit `settings.yml` and ensure:
+
+2. **Enable JSON output**: SearXNG must allow JSON responses or the integration will receive HTTP 403 errors. In your `settings.yml`, ensure the following block is present:
    ```yaml
    search:
      formats:
        - html
        - json
    ```
-   common locations:
-   - debian/ubuntu packages: `/etc/searxng/settings.yml`
-   - docker/systemd installs: the path mounted via `SEARXNG_SETTINGS_PATH`
-3. restart searxng to apply the change
-4. use the base url (for example `http://your-searxng-instance:8080`) in the integration
+   Typical locations:
+   - Debian/Ubuntu packages: `/etc/searxng/settings.yml`
+   - Docker/systemd installs: the path you mounted into the container (`SEARXNG_SETTINGS_PATH`)
 
-## usage tips
+3. **Restart SearXNG** to apply the configuration change.
 
-ask questions that imply fresh information, such as:
-- "what's new with home assistant this week?"
-- "search for recent ai model releases"
-- "look up the latest news on smart homes"
-- "find information about solar incentives in 2025"
+4. **Configuration**: Use `http://localhost:8080` as your search URL
 
-when the trigger logic fires, the integration fetches results, merges them into the system prompt, and the llm responds with the latest context it can see.
+### DuckDuckGo
 
-## troubleshooting
+Uses the official DuckDuckGo Instant Answer API (free but limited):
+- No setup required
+- Limited to instant answers and related topics
+- Good for quick facts and definitions
 
-- if you get 403 errors with searxng, double-check that json is enabled and the url includes any required tokens.
-- verify home assistant can reach the provider url by running curl from the same host.
-- enable debug logging by adding to `configuration.yaml`:
-  ```yaml
-  logger:
-    logs:
-      custom_components.ollama.web_search: debug
-  ```
+### Custom Provider
 
-## contributing
+For any JSON-based search API:
+1. Set your API endpoint as the search URL
+2. The integration expects JSON responses with `results` array
+3. Each result should have `title`, `url`, and `content` fields
 
-issues and pull requests are welcome at https://github.com/sudoxnym/ollama-enhanced/issues
+## Usage Examples
 
-## license
+Once configured, simply ask questions that would benefit from web search:
 
-released under the mit license. see [license](LICENSE) for details.
+**Examples that trigger web search:**
+- "What's the latest news about AI?"
+- "Tell me about recent developments in Home Assistant"
+- "Search for information about electric vehicles"
+- "What happened today in technology?"
+- "Look up the weather in Tokyo"
+
+**The integration will:**
+1. Detect search triggers in your question
+2. Perform a web search using your configured provider
+3. Include relevant results in the conversation context
+4. Let the LLM provide an informed response with current information
+
+## Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| **Web Search Enabled** | Enable/disable web search functionality | `false` |
+| **Search Provider** | Choose search provider (SearXNG, DuckDuckGo, etc.) | `searxng` |
+| **Search URL** | Base URL for your search provider | `http://localhost:8080` |
+| **Search Results Count** | Number of search results to include (1-20) | `5` |
+
+## Troubleshooting
+
+### Common Issues
+
+**1. Search Not Working**
+- Check if web search is enabled in conversation agent settings
+- Verify search provider URL is accessible
+- Check Home Assistant logs for error messages
+
+**2. SearXNG Connection Issues**
+- Ensure SearXNG is running and accessible
+- Check firewall settings
+- Verify the URL format (include `http://` or `https://`)
+
+**3. No Search Results**
+- Try different search providers
+- Check if the search query contains trigger words
+- Verify the search provider is returning JSON responses
+
+### Logs
+
+Enable debug logging by adding to `configuration.yaml`:
+
+```yaml
+logger:
+  logs:
+    custom_components.ollama.web_search: debug
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- 🐛 [Report a Bug](https://github.com/sudoxnym/ollama-enhanced/issues)
+- 💡 [Request a Feature](https://github.com/sudoxnym/ollama-enhanced/issues)
