@@ -42,7 +42,7 @@ Automatically detects when to perform web searches based on keywords:
 4. Add this repository URL: `https://github.com/sudoxnym/ollama-enhanced`
 5. Select "Integration" as the category
 6. Click "Add"
-7. Search for "Ollama Web Search" and install it
+7. Search for "Ollama Enhanced" and install it
 8. Restart Home Assistant
 
 ### Option 2: Manual Installation
@@ -66,7 +66,7 @@ Automatically detects when to perform web searches based on keywords:
 1. **Install the Integration**
    - Go to Settings → Devices & Services
    - Click "Add Integration"
-   - Search for "Ollama Web Search"
+   - Search for "Ollama Enhanced"
    - Click to add it
 
 2. **Configure Ollama Connection**
@@ -196,8 +196,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 🐛 [Report a Bug](https://github.com/your-username/ollama-web-search/issues)
-- 💡 [Request a Feature](https://github.com/your-username/ollama-web-search/issues)
+- 🐛 [Report a Bug](https://github.com/sudoxnym/ollama-enhanced/issues)
+- 💡 [Request a Feature](https://github.com/sudoxnym/ollama-enhanced/issues)
 - 💬 [Discussions](https://github.com/your-username/ollama-web-search/discussions)
 
 ## Acknowledgments
