@@ -1,0 +1,13 @@
+{
+  "domain": "ollama",
+  "name": "Ollama Enhanced",
+  "after_dependencies": ["assist_pipeline", "intent"],
+  "codeowners": ["@your-username"],
+  "config_flow": true,
+  "dependencies": ["conversation"],
+  "documentation": "https://github.com/your-username/ollama-enhanced",
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "requirements": ["ollama==0.5.1", "aiohttp", "beautifulsoup4"],
+  "version": "1.0.0"
+}
